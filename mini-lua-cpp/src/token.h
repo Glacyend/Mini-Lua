@@ -23,6 +23,7 @@ enum class ReservedType {
     Not,
     Or,
     Repeat,
+    Return,
     Then,
     True,
     Until,
@@ -47,10 +48,10 @@ struct TokenString {
     Location location;
     std::string value;
 
-    TokenString(Location location, std::string&& value);
+    TokenString(Location location, std::string value);
 };
 
-enum class OperatorType {
+enum class SymbolType {
     Plus,
     Minus,
     Star,
@@ -79,18 +80,18 @@ enum class OperatorType {
     TripleDot,
 };
 
-struct TokenOperator {
+struct TokenSymbol {
     Location location;
-    OperatorType type;
+    SymbolType type;
 
-    TokenOperator(Location location, OperatorType type);
+    TokenSymbol(Location location, SymbolType type);
 };
 
 struct TokenName {
     Location location;
     std::string name;
 
-    TokenName(Location location, std::string&& name);
+    TokenName(Location location, std::string name);
 };
 
 struct TokenEOL {
@@ -100,6 +101,6 @@ struct TokenEOL {
 };
 
 using Token =
-    std::variant<TokenReserved, TokenNumber, TokenString, TokenOperator, TokenName, TokenEOL>;
+    std::variant<TokenReserved, TokenNumber, TokenString, TokenSymbol, TokenName, TokenEOL>;
 
 #endif
