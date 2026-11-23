@@ -20,6 +20,10 @@ void Scanner::scan_tokens() {
     while (!at_end()) {
         scan_token();
     }
+    if (tokens.empty() || !std::holds_alternative<TokenEOL>(tokens.back())) {
+        align_pointer();
+        make_token_eol();
+    }
 }
 
 std::pair<std::vector<Token>, std::vector<std::size_t>> Scanner::get_result() {
@@ -61,7 +65,7 @@ void Scanner::skip_comment() {
 }
 
 void Scanner::skip_whitespace() {
-    while (!at_end() && std::isspace(peek()) && peek() != '\n') {
+    while (!at_end() && is_space(peek()) && peek() != '\n') {
         consume();
     }
 }
@@ -75,9 +79,40 @@ bool Scanner::match_consume(char expected) {
     }
 }
 
+bool Scanner::is_space(char ch) {
+    return std::isspace(static_cast<unsigned char>(ch));
+}
+
+bool Scanner::is_alpha(char ch) {
+    return std::isalpha(static_cast<unsigned char>(ch));
+}
+
+bool Scanner::is_digit(char ch) {
+    return std::isdigit(static_cast<unsigned char>(ch));
+}
+
+bool Scanner::is_alpha_numeric(char ch) {
+    return is_alpha(ch) || is_digit(ch);
+}
+
+bool Scanner::is_hex_digit(char ch) {
+    return is_digit(ch) || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F');
+}
+
+bool Scanner::is_ident_start(char ch) {
+    return is_alpha(ch) || ch == '_';
+}
+
+bool Scanner::is_ident_continue(char ch) {
+    return is_alpha_numeric(ch) || ch == '_';
+}
+
 void Scanner::scan_token() {
     skip_whitespace();
     align_pointer();
+    if (at_end()) {
+        return;
+    }
 
     char ch = consume();
     switch (ch) {
@@ -178,7 +213,7 @@ void Scanner::scan_token() {
                 make_token_symbol(
                     match_consume('.') ? SymbolType::TripleDot : SymbolType::DoubleDot
                 );
-            } else if (std::isdigit(peek())) {
+            } else if (is_digit(peek())) {
                 scan_number();
             } else {
                 make_token_symbol(SymbolType::Dot);
@@ -191,9 +226,9 @@ void Scanner::scan_token() {
             break;
         }
         default: {
-            if (std::isalpha(ch) || ch == '_') {
+            if (is_ident_start(ch)) {
                 scan_identifier();
-            } else if (std::isdigit(ch)) {
+            } else if (is_digit(ch)) {
                 scan_number();
             } else {
                 throw LexicalError("Unexpected character.", get_token_location());
@@ -209,7 +244,7 @@ void Scanner::new_line() {
 }
 
 void Scanner::scan_identifier() {
-    while (std::isalnum(peek()) || peek() == '_') {
+    while (is_ident_continue(peek())) {
         consume();
     }
 
@@ -225,13 +260,11 @@ void Scanner::scan_number() {
     double value = 0.0;
 
     if (last_consumed() == '0' && (match_consume('x') || match_consume('X'))) {
-        auto is_hex_digit = [](char ch) {
-            return std::isdigit(ch) || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F');
-        };
-
+        bool found_digit = false;
         while (!at_end() && is_hex_digit(peek())) {
             char ch = consume();
-            if ('0' <= ch && ch <= '9') {
+            found_digit = true;
+            if (is_digit(ch)) {
                 value = value * 16.0 + static_cast<double>(ch - '0');
             } else {
                 double digit = 0.0;
@@ -270,8 +303,11 @@ void Scanner::scan_number() {
                 value = value * 16.0 + digit;
             }
         }
-        if (std::isalpha(peek())) {
+        if (is_ident_start(peek())) {
             throw LexicalError("Invalid hexadecimal number.", get_token_location());
+        }
+        if (!found_digit) {
+            throw LexicalError("Expected a hexadecimal digit.", get_token_location());
         }
 
         make_token_number(value);
@@ -282,7 +318,7 @@ void Scanner::scan_number() {
     if (last_consumed() != '.') {
         has_integer_part = true;
         value = static_cast<double>(last_consumed() - '0');
-        while (!at_end() && std::isdigit(peek())) {
+        while (!at_end() && is_digit(peek())) {
             char ch = consume();
             value = value * 10.0 + static_cast<double>(ch - '0');
         }
@@ -293,12 +329,12 @@ void Scanner::scan_number() {
 
     if (last_consumed() == '.') {
         double divisor = 10.0;
-        if (!std::isdigit(peek()) && !has_integer_part) {
+        if (!is_digit(peek()) && !has_integer_part) {
             throw LexicalError(
                 "Numbers without an integer part must have a fractional part.", get_token_location()
             );
         }
-        while (!at_end() && std::isdigit(peek())) {
+        while (!at_end() && is_digit(peek())) {
             char ch = consume();
             double digit = ch - '0';
             value += digit / divisor;
@@ -314,10 +350,10 @@ void Scanner::scan_number() {
         } else {
             match_consume('+');
         }
-        if (!std::isdigit(peek())) {
+        if (!is_digit(peek())) {
             throw LexicalError("Expected the exponent part.", get_token_location());
         }
-        while (!at_end() && std::isdigit(peek())) {
+        while (!at_end() && is_digit(peek())) {
             char ch = consume();
             long long digit = ch - '0';
             if (exp > (std::numeric_limits<long long>::max() - digit) / 10) {
@@ -331,6 +367,14 @@ void Scanner::scan_number() {
         value *= std::pow(10.0, static_cast<double>(exp));
     }
 
+    if (is_ident_start(peek())) {
+        throw LexicalError("Invalid number digit.", get_token_location());
+    }
+
+    if (!std::isfinite(value)) {
+        throw LexicalError("Number overflow.", get_token_location());
+    }
+
     make_token_number(value);
 }
 
@@ -342,9 +386,9 @@ void Scanner::scan_string() {
         if (peek() == '\n') {
             throw LexicalError("Unterminated string.", get_location(current, std::next(current)));
         }
-        
+
         if (match_consume('\\')) {
-            if (at_end()) {
+            if (at_end() || peek() == '\n') {
                 throw LexicalError(
                     "Unterminated string.", get_location(std::prev(current), current)
                 );

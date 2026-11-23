@@ -49,6 +49,13 @@ private:
     void skip_comment();
     void skip_whitespace();
     bool match_consume(char expected);
+    static bool is_space(char ch);
+    static bool is_alpha(char ch);
+    static bool is_digit(char ch);
+    static bool is_alpha_numeric(char ch);
+    static bool is_hex_digit(char ch);
+    static bool is_ident_start(char ch);
+    static bool is_ident_continue(char ch);
     void scan_token();
     void new_line();
     void scan_identifier();
