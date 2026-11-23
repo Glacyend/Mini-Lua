@@ -35,9 +35,7 @@ int main() {
 }
 
 void process(std::string source) {
-    std::string source_string = std::move(source);
-
-    Scanner scanner(source_string);
+    Scanner scanner(source);
 
     try {
         scanner.scan_tokens();
@@ -48,8 +46,8 @@ void process(std::string source) {
 
     auto [tokens, line_offset] = scanner.get_result();
     for (const Token& token : tokens) {
-        auto get_string_view = [&source_string, &line_offset](Location location) {
-            auto line_start = source_string.begin()
+        auto get_string_view = [&source, &line_offset](Location location) {
+            auto line_start = source.begin()
                             + static_cast<std::ptrdiff_t>(line_offset[location.start.line]);
             auto start = line_start + static_cast<std::ptrdiff_t>(location.start.column);
             auto end = line_start + static_cast<std::ptrdiff_t>(location.end.column);
