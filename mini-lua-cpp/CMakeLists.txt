@@ -11,10 +11,12 @@ target_compile_options(warning-options INTERFACE -Wall -Wextra -Wpedantic -Wconv
 
 set(SOURCES
     src/errors.cpp
+    src/expr.cpp
     src/location.cpp
     src/main.cpp
     src/scanner.cpp
     src/token.cpp
+    src/value.cpp
 )
 
 add_executable(mini-lua-cpp ${SOURCES})
