@@ -1,7 +1,15 @@
-print("Hello".." ".."--\"World\"--")
-x=-3+4
-this_1s_a_variable = 0xabcF-.012e-56+7.e8+9e+10--8
-if 1 then
-y=x
-end
-print (y)
+print(1+2*3/4)
+print(f(1.57))
+print(1<2 and 4+5==9)
+print(math.max(3,-math.min(5*7,-4)))
+{}
+a[1]
+a[1][2]
+a[1][3]
+a[1][1]
+print(#a)
+print(#a[1])
+print(#a[1][3])
+print(a)
+print(f)
+print(a[1][1][1][3] .. "\n" .. "..")

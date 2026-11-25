@@ -14,7 +14,7 @@ Scanner::Scanner(std::string_view source)
       current(source.begin()),
       line_start(source.begin()),
       tokens(),
-      line_offset({ 0 }) {}
+      line_count(0) {}
 
 void Scanner::scan_tokens() {
     while (!at_end()) {
@@ -26,8 +26,8 @@ void Scanner::scan_tokens() {
     }
 }
 
-std::pair<std::vector<Token>, std::vector<std::size_t>> Scanner::get_result() {
-    return { std::move(tokens), std::move(line_offset) };
+std::vector<Token> Scanner::get_tokens() {
+    return std::move(tokens);
 }
 
 bool Scanner::at_end() const {
@@ -240,7 +240,7 @@ void Scanner::scan_token() {
 void Scanner::new_line() {
     make_token_eol();
     line_start = current;
-    line_offset.push_back(static_cast<std::size_t>(line_start - source.begin()));
+    ++line_count;
 }
 
 void Scanner::scan_identifier() {
@@ -427,8 +427,8 @@ Location Scanner::get_location(
     std::string_view::const_iterator start, std::string_view::const_iterator end
 ) const {
     return Location(
-        Position(line_offset.size() - 1, static_cast<std::size_t>(start - line_start)),
-        Position(line_offset.size() - 1, static_cast<std::size_t>(end - line_start))
+        Position(line_count, static_cast<std::size_t>(start - line_start)),
+        Position(line_count, static_cast<std::size_t>(end - line_start))
     );
 }
 

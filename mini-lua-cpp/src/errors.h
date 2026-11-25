@@ -14,4 +14,12 @@ public:
     LexicalError(std::string message, Location location);
 };
 
+class SyntaxError : public std::runtime_error {
+public:
+    std::string message;
+    Location location;
+
+    SyntaxError(std::string message, Location location);
+};
+
 #endif

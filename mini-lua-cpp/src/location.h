@@ -36,4 +36,16 @@ struct std::formatter<Position> {
     }
 };
 
+template <>
+struct std::formatter<Location> {
+    constexpr auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const Location& location, FormatContext& ctx) const {
+        return std::format_to(ctx.out(), "{} - {}", location.start, location.end);
+    }
+};
+
 #endif

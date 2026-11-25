@@ -4,12 +4,11 @@
 #include <utility>
 
 LexicalError::LexicalError(std::string message, Location location)
-    : std::runtime_error(
-          (location.start == location.end)
-              ? std::format("LexicalError at {} --- {}", location.start, message)
-              : std::format(
-                    "LexicalError at {} to {} --- {}", location.start, location.end, message
-                )
-      ),
+    : std::runtime_error(std::format("LexicalError [{}]: {}", location, message)),
+      message(std::move(message)),
+      location(location) {}
+
+SyntaxError::SyntaxError(std::string message, Location location)
+    : std::runtime_error(std::format("SyntaxError [{}]: {}", location, message)),
       message(std::move(message)),
       location(location) {}

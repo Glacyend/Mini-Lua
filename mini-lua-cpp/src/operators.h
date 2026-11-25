@@ -22,4 +22,10 @@ enum class Operator {
     Power,
 };
 
+#ifdef DEBUG_MODE
+
+const char* operator_to_string(Operator ope);
+
+#endif
+
 #endif

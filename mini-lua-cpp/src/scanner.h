@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <map>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 class Scanner {
@@ -40,7 +39,7 @@ private:
     std::string_view::const_iterator current;
     std::string_view::const_iterator line_start;
     std::vector<Token> tokens;
-    std::vector<std::size_t> line_offset;
+    std::size_t line_count;
 
     bool at_end() const;
     char peek() const;
@@ -76,7 +75,7 @@ private:
 public:
     Scanner(std::string_view source);
     void scan_tokens();
-    std::pair<std::vector<Token>, std::vector<std::size_t>> get_result();
+    std::vector<Token> get_tokens();
 };
 
 #endif

@@ -14,6 +14,8 @@ set(SOURCES
     src/expr.cpp
     src/location.cpp
     src/main.cpp
+    src/operators.cpp
+    src/parser.cpp
     src/scanner.cpp
     src/token.cpp
     src/value.cpp
@@ -25,5 +27,5 @@ target_compile_options(mini-lua-cpp PRIVATE -O2)
 
 add_executable(mini-lua-cpp-debug ${SOURCES})
 target_link_libraries(mini-lua-cpp-debug PRIVATE warning-options)
-target_compile_options(mini-lua-cpp-debug PRIVATE -O0 -g -fsanitize=address,undefined,bounds)
+target_compile_options(mini-lua-cpp-debug PRIVATE -O0 -g -fsanitize=address,undefined,bounds -DDEBUG_MODE)
 target_link_options(mini-lua-cpp-debug PRIVATE -fsanitize=address,undefined,bounds)

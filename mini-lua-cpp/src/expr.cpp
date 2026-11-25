@@ -10,20 +10,22 @@ ExprVariable::ExprVariable(Location location, std::string name)
     : location(location),
       name(std::move(name)) {}
 
-ExprProperty::ExprProperty(Location location, std::unique_ptr<Expr> owner, std::string property)
+ExprMemberAccess::ExprMemberAccess(
+    Location location, std::unique_ptr<Expr> owner, std::string member_name
+)
     : location(location),
       owner(std::move(owner)),
-      property(std::move(property)) {}
+      member_name(std::move(member_name)) {}
 
 ExprIndex::ExprIndex(Location location, std::unique_ptr<Expr> owner, std::unique_ptr<Expr> index)
     : location(location),
       owner(std::move(owner)),
       index(std::move(index)) {}
 
-ExprUnary::ExprUnary(Location location, std::unique_ptr<Expr> rhs, Operator ope)
+ExprUnary::ExprUnary(Location location, Operator ope, std::unique_ptr<Expr> rhs)
     : location(location),
-      rhs(std::move(rhs)),
-      ope(ope) {}
+      ope(ope),
+      rhs(std::move(rhs)) {}
 
 ExprBinary::ExprBinary(
     Location location, std::unique_ptr<Expr> lhs, Operator ope, std::unique_ptr<Expr> rhs
@@ -39,3 +41,13 @@ ExprCall::ExprCall(
     : location(location),
       callee(std::move(callee)),
       arguments(std::move(arguments)) {}
+
+ExprGrouping::ExprGrouping(Location location, std::unique_ptr<Expr> inner)
+    : location(location),
+      inner(std::move(inner)) {}
+
+Location get_location(const Expr& expr) {
+    return std::visit([](auto&& expr) {
+        return expr.location;
+    }, expr);
+}
