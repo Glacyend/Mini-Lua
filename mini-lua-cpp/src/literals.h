@@ -94,7 +94,7 @@ private:
                 }
             }
         }
-        return std::format_to(ctx.out(), "ValueString(\"{}\")", raw_string);
+        return std::format_to(ctx.out(), "LiteralString(\"{}\")", raw_string);
     }
 
     template <typename FormatContext>

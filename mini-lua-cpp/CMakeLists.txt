@@ -10,6 +10,9 @@ add_library(warning-options INTERFACE)
 target_compile_options(warning-options INTERFACE -Wall -Wextra -Wpedantic -Wconversion -Wfloat-equal -Wshadow)
 
 set(SOURCES
+    src/bytes.cpp
+    src/chunk.cpp
+    src/compiler.cpp
     src/errors.cpp
     src/expr.cpp
     src/literals.cpp
@@ -19,6 +22,7 @@ set(SOURCES
     src/parser.cpp
     src/scanner.cpp
     src/token.cpp
+    src/value.cpp
 )
 
 add_executable(mini-lua-cpp ${SOURCES})
