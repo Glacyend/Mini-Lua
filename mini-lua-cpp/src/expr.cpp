@@ -2,7 +2,7 @@
 
 #include <utility>
 
-ExprLiteral::ExprLiteral(Location location, Value value)
+ExprLiteral::ExprLiteral(Location location, Literal value)
     : location(location),
       value(std::move(value)) {}
 

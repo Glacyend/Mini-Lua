@@ -429,21 +429,25 @@ std::unique_ptr<Expr> Parser::expr_primary() {
     Token token = *consume();
     return std::visit([&]<typename T>(T& token) -> std::unique_ptr<Expr> {
         if constexpr (std::is_same_v<T, TokenNumber>) {
-            return std::make_unique<Expr>(ExprLiteral(token.location, ValueNumber(token.value)));
+            return std::make_unique<Expr>(ExprLiteral(token.location, LiteralNumber(token.value)));
         } else if constexpr (std::is_same_v<T, TokenString>) {
             return std::make_unique<Expr>(
-                ExprLiteral(token.location, ValueString(std::move(token.value)))
+                ExprLiteral(token.location, LiteralString(std::move(token.value)))
             );
         } else if constexpr (std::is_same_v<T, TokenReserved>) {
             switch (token.type) {
                 case ReservedType::Nil: {
-                    return std::make_unique<Expr>(ExprLiteral(token.location, ValueNil()));
+                    return std::make_unique<Expr>(ExprLiteral(token.location, LiteralNil()));
                 }
                 case ReservedType::True: {
-                    return std::make_unique<Expr>(ExprLiteral(token.location, ValueBoolean(true)));
+                    return std::make_unique<Expr>(
+                        ExprLiteral(token.location, LiteralBoolean(true))
+                    );
                 }
                 case ReservedType::False: {
-                    return std::make_unique<Expr>(ExprLiteral(token.location, ValueBoolean(false)));
+                    return std::make_unique<Expr>(
+                        ExprLiteral(token.location, LiteralBoolean(false))
+                    );
                 }
                 default: {
                     throw SyntaxError("Expected an expression.", token.location);
@@ -457,7 +461,7 @@ std::unique_ptr<Expr> Parser::expr_primary() {
                         && closing_symbol->type == SymbolType::RightBrace) {
                         return std::make_unique<Expr>(ExprLiteral(
                             Location::combine(token.location, closing_symbol->location),
-                            ValueTable()
+                            LiteralEmptyTable()
                         ));
                     } else {
                         throw SyntaxError("Only empty tables are supported.", last_location);

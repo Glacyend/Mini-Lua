@@ -12,13 +12,13 @@ target_compile_options(warning-options INTERFACE -Wall -Wextra -Wpedantic -Wconv
 set(SOURCES
     src/errors.cpp
     src/expr.cpp
+    src/literals.cpp
     src/location.cpp
     src/main.cpp
     src/operators.cpp
     src/parser.cpp
     src/scanner.cpp
     src/token.cpp
-    src/value.cpp
 )
 
 add_executable(mini-lua-cpp ${SOURCES})

@@ -1,9 +1,9 @@
 #ifndef __EXPR_H__
 #define __EXPR_H__
 
+#include "literals.h"
 #include "location.h"
 #include "operators.h"
-#include "value.h"
 
 #include <memory>
 #include <string>
@@ -32,9 +32,9 @@ using Expr = std::variant<
 class ExprLiteral {
 public:
     Location location;
-    Value value;
+    Literal value;
 
-    ExprLiteral(Location location, Value value);
+    ExprLiteral(Location location, Literal value);
 };
 
 class ExprVariable {
